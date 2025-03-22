@@ -1,0 +1,11 @@
+{
+    "name": "Undang-Undang34",
+    "version": "1.0",
+    "authors": [ "Richard Christian", "David Bakti Lodianto", "Lutfi Hakim Yusra"],
+    "description": "Mengejar musuh dan bergerak dengan arah tegak lurus terhadap musuh",
+    "homepage": "",
+    "countryCodes": [ "id" ],
+    "platform": "Net",
+    "programmingLang": "C#"
+  }
+  

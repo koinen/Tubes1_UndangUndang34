@@ -60,25 +60,30 @@ public class Perpendicular : Bot
 
         // Compute gun turn required to face enemy
         double gunTurn = GunBearingTo(e.X, e.Y);
-        SetTurnGunLeft(gunTurn);
         double turn = BearingTo(e.X, e.Y);
         double enemyDistance = DistanceTo(e.X, e.Y);
+        double enemyLateralSpeed = e.Speed * Math.Sin((e.Direction - (turn + Direction) * Math.PI/180));
+        double overcompensate = Speed == 0 ? 0 : enemyLateralSpeed/Speed;
         // Adjust TargetSpeed based on distance
-        if (enemyDistance > 100) {
-            SetTurnLeft(turn + Math.Max((90 - (Math.Abs(enemyDistance - 100) * 2)), 0)); // ensures smooth turn when distance reaches 100
+        if (enemyDistance > 200) {
+            SetTurnLeft(turn + overcompensate + Math.Max((90 - (Math.Abs(enemyDistance - 100) * 2)), 0)); // ensures smooth turn when distance reaches 100
             if (enemyDistance > 200) {
                 dir = 1;
             }
+            SetTurnGunLeft(gunTurn + enemyLateralSpeed);
             TargetSpeed = 8 * dir; 
-            Fire(0.8);
-        } else if (enemyDistance >= 50 && e.Speed < 2) {
+            SetFire(1);
+        } else if (enemyDistance >= 100) {
             double perpendicular = NormalizeRelativeAngle(BearingTo(e.X, e.Y) + 90);
-            SetTurnLeft(perpendicular);
+            SetTurnLeft(perpendicular + overcompensate);
             TargetSpeed = 8 * dir;
-            Fire(2);
+            SetTurnGunLeft(gunTurn + enemyLateralSpeed*2);
+            SetFire(2);
         } else if (enemyDistance < 50) {
-            TargetSpeed = -2 * dir; // Back off
-            Fire(3);
+            SetTurnLeft(turn);
+            SetTurnGunLeft(gunTurn);
+            TargetSpeed = -4; // Back off
+            SetFire(3);
         }
         // Fire if close
     }

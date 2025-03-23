@@ -1,0 +1,10 @@
+{
+  "name": "Conquest",
+  "version": "1.0",
+  "authors": ["Lutfi Hakim Yusra"],
+  "description": "A bot that targets and hunts the first scanned bot. Stand ready for my arrival.",
+  "homepage": "",
+  "countryCodes": ["id"],
+  "platform": ".Net 8.0",
+  "programmingLang": "C# 10.0"
+}

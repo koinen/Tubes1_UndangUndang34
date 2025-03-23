@@ -1,0 +1,10 @@
+{
+  "name": "Custom",
+  "version": "1.0",
+  "authors":  [ "Richard Christian", "David Bakti Lodianto", "Lutfi Hakim Yusra"],
+  "description": "Berosilasi di satu tembok dan menembak musuh yang terscan",
+  "homepage": "",
+  "countryCodes": ["id"],
+  "platform": ".Net 6.0",
+  "programmingLang": "C# 10.0"
+}

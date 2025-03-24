@@ -1,10 +1,10 @@
 {
     "name": "Box",
     "version": "1.0",
-    "authors": [ "", "", "ballsack"],
-    "description": "Deskripsi strategi greedy yang digunakan",
-    "homepage": "«…»",
-    "countryCodes": [ "" ],
+    "authors": [ "Richard Christian", "David Bakti Lodianto", "Lutfi Hakim Yusra"],
+    "description": "Bergerak ke area pojokkan terdekat dan bergerak dalam bentuk kotak untuk mengecoh bidikan musuh",
+    "homepage": "",
+    "countryCodes": [ "id" ],
     "platform": "Net",
     "programmingLang": "C#"
   }

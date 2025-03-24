@@ -8,11 +8,9 @@ using Robocode.TankRoyale.BotApi.Events;
 // ------------------------------------------------------------------
 // Box
 // ------------------------------------------------------------------
-// A sample bot original made for Robocode by Mathew Nelson.
-// Ported to Robocode Tank Royale by Flemming N. Larsen.
-//
-// This bot moves to a corner, then swings the gun back and forth.
-// If it dies, it tries a new corner in the next round.
+// Bot Box bergerak ke salah satu sudut arena dan bergerak di sana.
+// Bot ini akan bergerak ke sudut arena yang paling aman, dan bergerak dalam bentuk kotak.
+// Bot ini akan menembakkan peluru ke musuh yang paling dekat.
 // ------------------------------------------------------------------
 public class Box : Bot
 {
@@ -21,7 +19,6 @@ public class Box : Bot
     const int boxWidth = 250;
     const int boxHeight = 200;
     const int GUN_FACTOR = 500;
-    // Tuple<int, PointDouble> enemyLocations[11];
     int corner;
     Dictionary<int, int> enemyLocations = new Dictionary<int, int>();
     int closestBotId;
@@ -33,16 +30,11 @@ public class Box : Bot
     int state, count;
     int cornerChange;
     Rectangle box;
-    // The main method starts our bot
     static void Main(string[] args)
     {
         new Box().Start();
     }
-
-    // Constructor, which loads the bot config file
     Box() : base(BotInfo.FromFile("Box.json")) { }
-
-    // Called when a new round is started -> initialize and do some movement
     public override void Run()
     {
         state = 0;
@@ -50,9 +42,7 @@ public class Box : Bot
         count = 0;
         closestBotId = -1;
         closestBotDistance = -1;
-        Console.WriteLine("Box.cs: Run()");
-        // box = new Rectangle(padding, padding, ArenaWidth - padding*2, ArenaHeight - padding*2);
-        if (X < ArenaWidth / 2)
+        if (X < ArenaWidth / 2) // mengambil sudut arena yang paling dekat 
         {
             if (Y < ArenaHeight / 2) {
                 box = new Rectangle(padding, padding, boxWidth, boxHeight);
@@ -88,7 +78,6 @@ public class Box : Bot
         // Move to a corner
         GoCorner();
         AdjustGunForBodyTurn = true;
-        // Spin gun back and forth
         while (IsRunning)
         {
             SetTurnRadarLeft(Double.PositiveInfinity);
@@ -106,25 +95,21 @@ public class Box : Bot
 
     public void AdjustMovement() {
         if (currentHeading == 90) { // facing right wall
-            // MaxSpeed = Math.Min(8, Math.Max(Math.Abs(box.X + box.Width - X), 2));
             movement = boxWidth;
         }
         else if (currentHeading == 180) { // facing top wall
-            // MaxSpeed = Math.Min(8, Math.Max(Math.Abs(box.Y - Y), 2));
             movement = boxHeight;
         }
         else if (currentHeading == 270) { // facing left wall
             movement = boxWidth;
         }
         else { // facing bottom wall
-            // MaxSpeed = Math.Min(8, Math.Max(Math.Abs(box.Y + box.Height - Y), 2));
             movement = boxHeight;
         }
-        // Console.WriteLine("Box.cs: AdjustSpeed(): MaxSpeed: " + MaxSpeed + ", movement: " + movement);
     }
     private void GoCorner()
     {
-        // go to closest corner
+        // go to chosen corner
         double angle, movement;
         if (corner == 1) {
             angle = Math.Atan2(ArenaHeight - padding - Y, ArenaWidth - padding - X) * rad_to_deg;
@@ -146,7 +131,7 @@ public class Box : Bot
     public override void OnScannedBot(ScannedBotEvent evt)
     {
         if (state == 0) { 
-            if (300 < evt.X && evt.X < 500 && 200 < evt.Y && evt.Y < 400) { // center 200 x 200
+            if (300 < evt.X && evt.X < 500 && 200 < evt.Y && evt.Y < 400) { // membagi arena menjadi 5 bagian, membagi jumlah musuh ke dalam 5 bagian untuk menentukan sudut yang paling aman
                 enemyLocations[evt.ScannedBotId] = 0;
             }
             else if (evt.X < ArenaWidth / 2) {
@@ -202,17 +187,17 @@ public class Box : Bot
                 }
             }
         }
-        if (evt.ScannedBotId == closestBotId) {
+        if (evt.ScannedBotId == closestBotId) { // menembak musuh yang paling dekat
             SetTurnRadarRight(RadarTurnRemaining);
             double absBearing = BearingTo(evt.X, evt.Y) + Direction;
             SetTurnGunLeft(NormalizeRelativeAngle(GunBearingTo(evt.X, evt.Y) + Math.Max((1 - DistanceTo(evt.X, evt.Y) / (GUN_FACTOR+100)), 0) * Math.Asin(evt.Speed / 8) * Math.Sin(evt.Direction - absBearing) * rad_to_deg));	
             double dist = DistanceTo(evt.X, evt.Y);
-            if (dist < 500 && dist > 0 || EnemyCount <= 3) {
-                SetFire(1.25*Energy/dist);
+            if (dist < 500 && dist > 0 || EnemyCount <= 3) { // setelah menembak musuh yang paling dekat, scan lagi
+                SetFire(80/dist);
                 state = 0;
                 closestBotId = -1;
                 closestBotDistance = -1;
-            } else {
+            } else { // jika musuh terlalu jauh, scan musuh yang lain
                 state = 0;
                 closestBotId = -1;
                 closestBotDistance = -1;
@@ -221,7 +206,7 @@ public class Box : Bot
     }
     public override void OnBotDeath(BotDeathEvent evt)
     {
-        if (enemyLocations.ContainsKey(evt.VictimId)) {
+        if (enemyLocations.ContainsKey(evt.VictimId)) { // jika musuh mati, hapus dari list musuh
             enemyLocations.Remove(evt.VictimId);
         }
     }   

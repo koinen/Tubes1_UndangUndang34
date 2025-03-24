@@ -65,24 +65,28 @@ public class Perpendicular : Bot
         double enemyLateralSpeed = e.Speed * Math.Sin((e.Direction - (turn + Direction) * Math.PI/180));
         double overcompensate = Speed == 0 ? 0 : enemyLateralSpeed/Speed;
         // Adjust TargetSpeed based on distance
+        var rd = new Random();
+        if (rd.NextDouble() > 0.9) {
+            MaxSpeed = rd.NextDouble() * 10 + 4;
+        }
         if (enemyDistance > 200) {
             SetTurnLeft(turn + overcompensate + Math.Max((90 - (Math.Abs(enemyDistance - 100) * 2)), 0)); // ensures smooth turn when distance reaches 100
             if (enemyDistance > 200) {
                 dir = 1;
             }
-            SetTurnGunLeft(gunTurn + enemyLateralSpeed);
-            TargetSpeed = 8 * dir; 
-            SetFire(1);
-        } else if (enemyDistance >= 100) {
+            SetTurnGunLeft(gunTurn + enemyLateralSpeed*(800/enemyDistance));
+            SetForward(100 * dir);
+            SetFire(0.7);
+        } else if (enemyDistance >= 50) {
             double perpendicular = NormalizeRelativeAngle(BearingTo(e.X, e.Y) + 90);
             SetTurnLeft(perpendicular + overcompensate);
-            TargetSpeed = 8 * dir;
-            SetTurnGunLeft(gunTurn + enemyLateralSpeed*2);
-            SetFire(2);
-        } else if (enemyDistance < 50) {
+            SetForward(100 * dir);
+            SetTurnGunLeft(gunTurn + enemyLateralSpeed*(200/enemyDistance));
+            SetFire(1.5);
+        } else {
             SetTurnLeft(turn);
             SetTurnGunLeft(gunTurn);
-            TargetSpeed = -4; // Back off
+            SetBack(100);
             SetFire(3);
         }
         // Fire if close
@@ -107,6 +111,20 @@ public class Perpendicular : Bot
             }
         }
     }
+
+    public override void OnHitBot(HitBotEvent e)
+    {
+        if (e.IsRammed)
+        {
+            if (closestBotId == e.VictimId) {
+                return;
+            }
+            lastBotId = closestBotId;
+            closestBotId = e.VictimId;
+            state = 1;
+        }
+    }
+
     public override void OnBotDeath(BotDeathEvent evt)
     {
         // Console.WriteLine($"Bot {evt.VictimId} died. Was it my target? {evt.VictimId == closestBotId}");
